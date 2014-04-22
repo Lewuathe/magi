@@ -1,0 +1,4 @@
+magi
+====
+
+Neural networks module 
