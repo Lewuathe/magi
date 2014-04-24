@@ -1,4 +1,5 @@
 import com.lewuathe.magi.NeuralNetwork;
+import com.lewuathe.magi.Util;
 import junit.framework.TestCase;
 import org.junit.Test;
 
@@ -35,7 +36,10 @@ public class NNTest extends TestCase {
     @Test
     public void testSmoke() {
         double[] test = {0.9, 0.0, 0.1};
-        System.out.println(nn.feedforward(test));
+        double[] ret = nn.feedforward(test);
+        for (int i = 0; i < ret.length; i++) {
+            System.out.printf("%f ", ret[i]);
+        }
     }
 
     @Test
@@ -49,7 +53,7 @@ public class NNTest extends TestCase {
                 {0.6, 0.7, 0.8},
                 {0.7, 0.8, 0.9}
         };
-        List<double[][]> ret = nn.sampling(xs, xs, 3);
+        List<double[][]> ret = Util.sampling(xs, xs, 3);
         double[][] newXs = ret.get(0);
         double[][] newYs = ret.get(1);
         for (int i = 0; i < newXs.length; i++) {

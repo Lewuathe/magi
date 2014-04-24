@@ -1,19 +1,19 @@
 package com.lewuathe.magi;
 
 /**
- * Created by sasakiumi on 4/22/14.
- */
-
-/**
- * Created by sasakiumi on 4/21/14.
+ * Created by Kai Sasaki on 4/22/14.
  */
 
 import org.ujmp.core.Matrix;
 
 import java.util.*;
 
+
 /**
- * Created by sasakiumi on 4/16/14.
+ *  NeuralNetwork
+ *
+ *  @since 0.0.1
+ *  @author Kai Sasaki
  */
 public class NeuralNetwork {
     private int[] numLayers;
@@ -30,7 +30,12 @@ public class NeuralNetwork {
         this.weights[1] = Matrix.factory.rand(numLayers[2], numLayers[1]);
     }
 
-    public Matrix feedforward(double[] input) {
+    /**
+     * feedforward
+     * @param input
+     * @return double[]
+     */
+    public double[] feedforward(double[] input) {
         Matrix x = Matrix.factory.zeros(input.length, 1);
 
         for (int i = 0; i < input.length; i++) {
@@ -43,33 +48,21 @@ public class NeuralNetwork {
                 x.setAsDouble(Activation.sigmoid(x.getAsDouble(j, 0)), j, 0);
             }
         }
-        return x;
-    }
 
-    public List<double[][]> sampling(double[][] xs, double[][] ys, int size) {
-        int xrow = xs.length;
-        int xdim = xs[0].length;
-        int yrow = ys.length;
-        int ydim = ys[0].length;
-
-        double[][] retx = new double[size][xdim];
-        double[][] rety = new double[size][ydim];
-        for (int i = 0; i < size; i++) {
-            int rand = (int) (Math.random() * size);
-            for (int j = 0; j < xdim; j++) {
-                retx[i][j] = xs[rand][j];
-            }
-            for (int j = 0; j < ydim; j++) {
-                rety[i][j] = xs[rand][j];
-            }
+        double[] ret = new double[this.numLayers[2]];
+        for (int i = 0; i < this.numLayers[2]; i++) {
+            ret[i] = x.getAsDouble(i, 0);
         }
-
-        List<double[][]> ret = new ArrayList<double[][]>();
-        ret.add(retx);
-        ret.add(rety);
         return ret;
     }
 
+    /**
+     * train
+     * @param x
+     * @param y
+     * @param epochs
+     * @param lr
+     */
     public void train(double[][] x, double[][] y, int epochs, double lr) {
         int n = x.length;
         for (int i = 0; i < epochs; i++) {
@@ -77,6 +70,12 @@ public class NeuralNetwork {
         }
     }
 
+    /**
+     * update
+     * @param x
+     * @param y
+     * @param lr
+     */
     public void update(double[][] x, double[][] y, double lr) {
         Matrix[] nablaB = new Matrix[2];
         nablaB[0] = Matrix.factory.zeros(numLayers[1], 1);
@@ -109,7 +108,7 @@ public class NeuralNetwork {
         weights[1] = weights[1].minus(nablaW[1].mtimes(lr));
     }
 
-    public Matrix[][] backprod(Matrix x, Matrix y) {
+    private Matrix[][] backprod(Matrix x, Matrix y) {
         Matrix[] nablaB = new Matrix[2];
         nablaB[0] = Matrix.factory.zeros(numLayers[1], 1);
         nablaB[1] = Matrix.factory.zeros(numLayers[2], 1);
