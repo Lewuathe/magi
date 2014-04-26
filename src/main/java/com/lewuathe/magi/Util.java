@@ -1,5 +1,7 @@
 package com.lewuathe.magi;
 
+import org.ujmp.core.Matrix;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +43,19 @@ public class Util {
         List<double[][]> ret = new ArrayList<double[][]>();
         ret.add(retx);
         ret.add(rety);
+        return ret;
+    }
+
+    public static Matrix eachMul(Matrix x, Matrix y) {
+        assert x.getRowCount() == y.getRowCount();
+        assert x.getColumnCount() == y.getColumnCount();
+        Matrix ret = Matrix.factory.zeros(x.getRowCount(), x.getColumnCount());
+        for (int i = 0; i < x.getRowCount(); i++) {
+            for (int j = 0; j < x.getColumnCount(); j++) {
+                double mul = x.getAsDouble(i, j) * y.getAsDouble(i, j);
+                ret.setAsDouble(mul, i, j);
+            }
+        }
         return ret;
     }
 

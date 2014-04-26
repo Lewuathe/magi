@@ -10,28 +10,48 @@ import java.util.*;
 
 
 /**
- *  NeuralNetwork
+ * NeuralNetwork
  *
- *  @since 0.0.1
- *  @author Kai Sasaki
+ * @author Kai Sasaki
+ * @since 0.0.1
  */
 public class NeuralNetwork {
     private int[] numLayers;
     private int sizes;
+    private static final double etaPlus = 1.2;
+    private static final double etaMinus = 0.5;
     private Matrix[] biases = new Matrix[2];
     private Matrix[] weights = new Matrix[2];
+    private Matrix[] updateValueB = new Matrix[2];
+    private Matrix[] updateValueW = new Matrix[2];
+    private Matrix[] preNablaB = new Matrix[2];
+    private Matrix[] preNablaW = new Matrix[2];
 
     public NeuralNetwork(int[] numLayers) {
         this.numLayers = numLayers;
         this.sizes = numLayers.length;
+        // Network weights
         this.biases[0] = Matrix.factory.rand(numLayers[1], 1);
         this.biases[1] = Matrix.factory.rand(numLayers[2], 1);
         this.weights[0] = Matrix.factory.rand(numLayers[1], numLayers[0]);
         this.weights[1] = Matrix.factory.rand(numLayers[2], numLayers[1]);
+
+        // Update factors for resilient propagation
+        this.updateValueB[0] = Matrix.factory.rand(numLayers[1], 1);
+        this.updateValueB[1] = Matrix.factory.rand(numLayers[2], 1);
+        this.updateValueW[0] = Matrix.factory.rand(numLayers[1], numLayers[0]);
+        this.updateValueW[1] = Matrix.factory.rand(numLayers[2], numLayers[1]);
+
+        // Gradient descent calculated previously for resilient propagation
+        this.preNablaB[0] = Matrix.factory.rand(numLayers[1], 1);
+        this.preNablaB[1] = Matrix.factory.rand(numLayers[2], 1);
+        this.preNablaW[0] = Matrix.factory.rand(numLayers[1], numLayers[0]);
+        this.preNablaW[1] = Matrix.factory.rand(numLayers[2], numLayers[1]);
     }
 
     /**
      * feedforward
+     *
      * @param input
      * @return double[]
      */
@@ -58,6 +78,7 @@ public class NeuralNetwork {
 
     /**
      * train
+     *
      * @param x
      * @param y
      * @param epochs
@@ -66,12 +87,14 @@ public class NeuralNetwork {
     public void train(double[][] x, double[][] y, int epochs, double lr) {
         int n = x.length;
         for (int i = 0; i < epochs; i++) {
+//            System.out.printf("Epoch %d\n", i);
             this.update(x, y, lr);
         }
     }
 
     /**
      * update
+     *
      * @param x
      * @param y
      * @param lr
@@ -102,11 +125,75 @@ public class NeuralNetwork {
         }
 
         // Update biases and weights with gradient descent
-        biases[0] = biases[0].minus(nablaB[0].mtimes(lr));
-        biases[1] = biases[1].minus(nablaB[1].mtimes(lr));
-        weights[0] = weights[0].minus(nablaW[0].mtimes(lr));
-        weights[1] = weights[1].minus(nablaW[1].mtimes(lr));
+//        biases[0] = biases[0].minus(nablaB[0].mtimes(lr));
+//        biases[1] = biases[1].minus(nablaB[1].mtimes(lr));
+//        weights[0] = weights[0].minus(nablaW[0].mtimes(lr));
+//        weights[1] = weights[1].minus(nablaW[1].mtimes(lr));
+
+        // Update biases and weight with resilient propagation
+        biases[0] = biases[0].plus(manhattanUpdate(nablaB[0], updateValueB[0]));
+        biases[1] = biases[1].plus(manhattanUpdate(nablaB[1], updateValueB[1]));
+        weights[0] = weights[0].plus(manhattanUpdate(nablaW[0], updateValueW[0]));
+        weights[1] = weights[1].plus(manhattanUpdate(nablaW[1], updateValueW[1]));
+
+        sdAdaption(nablaB, nablaW);
+
     }
+
+    private void sdAdaption(Matrix[] nablaB, Matrix[] nablaW) {
+        // Update bias of each layer
+        for (int l = 0; l < 2; l++) {
+            Matrix ret = Util.eachMul(nablaB[l], preNablaB[l]);
+            for (int i = 0; i < ret.getRowCount(); i++) {
+                for (int j = 0; j < ret.getColumnCount(); j++) {
+                    double pre = updateValueB[l].getAsDouble(i, j);
+                    if (ret.getAsDouble(i, j) > 0.0) {
+                        updateValueB[l].setAsDouble(etaPlus * pre, i, j);
+                    } else if (ret.getAsDouble(i, j) < 0.0) {
+                        updateValueB[l].setAsDouble(etaMinus * pre, i, j);
+                    } else {
+                        updateValueB[l].setAsDouble(pre, i, j);
+                    }
+                }
+            }
+            preNablaB[l] = nablaB[l];
+        }
+
+        // Update weight of each layer
+        for (int l = 0; l < 2; l++) {
+            Matrix ret = Util.eachMul(nablaW[l], preNablaW[l]);
+            for (int i = 0; i < ret.getRowCount(); i++) {
+                for (int j = 0; j < ret.getColumnCount(); j++) {
+                    double pre = updateValueW[l].getAsDouble(i, j);
+                    if (ret.getAsDouble(i, j) > 0.0) {
+                        updateValueW[l].setAsDouble(etaPlus * pre, i, j);
+                    } else if (ret.getAsDouble(i, j) < 0.0) {
+                        updateValueW[l].setAsDouble(etaMinus * pre, i, j);
+                    } else {
+                        updateValueW[l].setAsDouble(pre, i, j);
+                    }
+                }
+            }
+            preNablaW[l] = nablaW[l];
+        }
+    }
+
+    private Matrix manhattanUpdate(Matrix delta, Matrix update) {
+        Matrix ret = Matrix.factory.zeros(delta.getRowCount(), delta.getColumnCount());
+        for (int i = 0; i < delta.getRowCount(); i++) {
+            for (int j = 0; j < delta.getColumnCount(); j++) {
+                if (delta.getAsDouble(i, j) > 0.0) {
+                    ret.setAsDouble(-update.getAsDouble(i, j), i, j);
+                } else if (delta.getAsDouble(i, j) < 0.0) {
+                    ret.setAsDouble(update.getAsDouble(i, j), i, j);
+                } else {
+                    ret.setAsDouble(0.0, i, j);
+                }
+            }
+        }
+        return ret;
+    }
+
 
     private Matrix[][] backprod(Matrix x, Matrix y) {
         Matrix[] nablaB = new Matrix[2];

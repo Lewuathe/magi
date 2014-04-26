@@ -30,7 +30,7 @@ public class NNTest extends TestCase {
                 {0.1, 0.8, 0.1},
                 {0.0, 0.9, 0.1}
         };
-        nn.train(xs, xs, 10000, 0.01);
+        nn.train(xs, xs, 5000, 0.01);
     }
 
     @Test
@@ -40,6 +40,7 @@ public class NNTest extends TestCase {
         for (int i = 0; i < ret.length; i++) {
             System.out.printf("%f ", ret[i]);
         }
+        System.out.println("");
     }
 
     @Test
