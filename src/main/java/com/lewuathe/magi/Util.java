@@ -59,4 +59,47 @@ public class Util {
         return ret;
     }
 
+    public static double[] standardize(double[] input) {
+        double mean = 0.0;
+        double std = 0.0;
+        double[] ret = new double[input.length];
+        for (int i = 0; i < input.length; i++) {
+            mean += input[i];
+        }
+        mean /= (double)input.length;
+        for (int i = 0; i < input.length; i++) {
+            std += Math.pow(input[i] - mean, 2);
+        }
+        std = Math.sqrt(std) / (double)input.length;
+        for (int i = 0; i < ret.length; i++) {
+            ret[i] = (input[i] - mean) / std;
+        }
+        return ret;
+    }
+
+    public static double[] nomalize(double[] input) {
+        double max = -Double.MAX_VALUE;
+        double min = Double.MAX_VALUE;
+        double[] ret = new double[input.length];
+        for (int i = 0; i < input.length; i++) {
+            max = Math.max(max, input[i]);
+            min = Math.min(min, input[i]);
+        }
+        for (int i = 0; i < ret.length; i++) {
+            ret[i] = (input[i] - min) / (max - min);
+        }
+        return ret;
+    }
+
+    public static int maxIndex(double[] ds) {
+        int maxIndex = 0;
+        double max = -Double.MAX_VALUE;
+        for (int i = 0; i < ds.length; i++) {
+            if (max < ds[i]) {
+                maxIndex = i;
+                max = ds[i];
+            }
+        }
+        return maxIndex;
+    }
 }

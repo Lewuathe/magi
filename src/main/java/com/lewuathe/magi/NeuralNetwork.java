@@ -62,16 +62,16 @@ public class NeuralNetwork {
             x.setAsDouble(input[i], i, 0);
         }
 
+        // Activation of each layer
+        Matrix activation = x;
+        // Set input activation
         for (int i = 0; i < 2; i++) {
-            x = weights[i].mtimes(x).plus(biases[i]);
-            for (int j = 0; j < this.numLayers[i + 1]; j++) {
-                x.setAsDouble(Activation.sigmoid(x.getAsDouble(j, 0)), j, 0);
-            }
+            activation = Activation.sigmoid(weights[i].mtimes(activation).plus(biases[i]));
         }
 
         double[] ret = new double[this.numLayers[2]];
-        for (int i = 0; i < this.numLayers[2]; i++) {
-            ret[i] = x.getAsDouble(i, 0);
+        for (int i = 0; i < activation.getRowCount(); i++) {
+            ret[i] = activation.getAsDouble(i, 0);
         }
         return ret;
     }
@@ -84,11 +84,12 @@ public class NeuralNetwork {
      * @param epochs
      * @param lr
      */
-    public void train(double[][] x, double[][] y, int epochs, double lr) {
+    public void train(double[][] x, double[][] y, int epochs, double lr, double[][] testxs, double[][] testys) {
         int n = x.length;
         for (int i = 0; i < epochs; i++) {
-//            System.out.printf("Epoch %d\n", i);
+            System.out.printf("Epoch %d -> ", i);
             this.update(x, y, lr);
+            this.evaluate(testxs, testys);
         }
     }
 
@@ -107,8 +108,11 @@ public class NeuralNetwork {
         nablaW[0] = Matrix.factory.zeros(numLayers[1], numLayers[0]);
         nablaW[1] = Matrix.factory.zeros(numLayers[2], numLayers[1]);
 
-
+        assert x.length == y.length;
         for (int i = 0; i < x.length; i++) {
+            if (Math.random() > 0.3) {
+                continue;
+            }
             Matrix xMat = Matrix.factory.zeros(numLayers[0], 1);
             Matrix yMat = Matrix.factory.zeros(numLayers[2], 1);
             for (int j = 0; j < numLayers[0]; j++) {
@@ -118,6 +122,8 @@ public class NeuralNetwork {
                 yMat.setAsDouble(y[i][j], j, 0);
             }
             Matrix[][] delta = this.backprod(xMat, yMat);
+            // delta[0]: nablaB
+            // delta[1]: nablaW
             nablaB[0] = nablaB[0].plus(delta[0][0]);
             nablaB[1] = nablaB[1].plus(delta[0][1]);
             nablaW[0] = nablaW[0].plus(delta[1][0]);
@@ -125,19 +131,17 @@ public class NeuralNetwork {
         }
 
         // Update biases and weights with gradient descent
-//        biases[0] = biases[0].minus(nablaB[0].mtimes(lr));
-//        biases[1] = biases[1].minus(nablaB[1].mtimes(lr));
-//        weights[0] = weights[0].minus(nablaW[0].mtimes(lr));
-//        weights[1] = weights[1].minus(nablaW[1].mtimes(lr));
+        biases[0] = biases[0].minus(nablaB[0].mtimes(lr));
+        biases[1] = biases[1].minus(nablaB[1].mtimes(lr));
+        weights[0] = weights[0].minus(nablaW[0].mtimes(lr));
+        weights[1] = weights[1].minus(nablaW[1].mtimes(lr));
 
         // Update biases and weight with resilient propagation
-        biases[0] = biases[0].plus(manhattanUpdate(nablaB[0], updateValueB[0]));
-        biases[1] = biases[1].plus(manhattanUpdate(nablaB[1], updateValueB[1]));
-        weights[0] = weights[0].plus(manhattanUpdate(nablaW[0], updateValueW[0]));
-        weights[1] = weights[1].plus(manhattanUpdate(nablaW[1], updateValueW[1]));
-
-        sdAdaption(nablaB, nablaW);
-
+//        biases[0] = biases[0].plus(manhattanUpdate(nablaB[0], updateValueB[0]));
+//        biases[1] = biases[1].plus(manhattanUpdate(nablaB[1], updateValueB[1]));
+//        weights[0] = weights[0].plus(manhattanUpdate(nablaW[0], updateValueW[0]));
+//        weights[1] = weights[1].plus(manhattanUpdate(nablaW[1], updateValueW[1]));
+//        sdAdaption(nablaB, nablaW);
     }
 
     private void sdAdaption(Matrix[] nablaB, Matrix[] nablaW) {
@@ -214,21 +218,22 @@ public class NeuralNetwork {
         for (int i = 0; i < 2; i++) {
             zs[i] = weights[i].mtimes(activation).plus(biases[i]);
             activation = Activation.sigmoid(zs[i]);
+//            activation = Activation.hyperbolicTangent(zs[i]);
             activations[i + 1] = activation;
         }
 
         // Calculate output layer error
         Matrix delta = costDerivative(activations[2], y);
+        delta = Util.eachMul(delta, Activation.sigmoidPrime(zs[1]));
+//        delta = Util.eachMul(delta, Activation.hyperbolicTangentPrime(zs[1]));
         nablaB[1] = delta;
         nablaW[1] = delta.mtimes(activations[1].transpose());
 
         for (int i = 1; i > 0; i--) {
             // Back propagation of output layer error to hidden layers
             delta = weights[i].transpose().mtimes(delta);
-            for (int j = 0; j < delta.getRowCount(); j++) {
-                // Multiply differential of sigmoid function
-                delta.setAsDouble(delta.getAsDouble(j, 0) * Activation.sigmoidPrime(zs[i - 1]).getAsDouble(j, 0), j, 0);
-            }
+            delta = Util.eachMul(delta, Activation.sigmoidPrime(zs[i - 1]));
+//            delta = Util.eachMul(delta, Activation.hyperbolicTangentPrime(zs[i - 1]));
             nablaB[i - 1] = delta;
             nablaW[i - 1] = delta.mtimes(activations[i - 1].transpose());
         }
@@ -239,5 +244,33 @@ public class NeuralNetwork {
 
     private Matrix costDerivative(Matrix outputActivation, Matrix y) {
         return outputActivation.minus(y);
+    }
+
+    private void evaluate(double[][] xs, double[][] ys) {
+        // Verification
+        int accurate = 0;
+        int TEST_NUM = xs.length;
+        for (int i = 0; i < TEST_NUM; i++) {
+            double[] ans = this.feedforward(xs[i]);
+
+            System.out.println("====================");
+            for (int j = 0; j < ys[i].length; j++) {
+                System.out.printf("%f ", ys[i][j]);
+            }
+            System.out.println("\n---------------------");
+            for (int j = 0; j < ans.length; j++) {
+                System.out.printf("%f ", ans[j]);
+            }
+            System.out.println("\n====================");
+            if (Util.maxIndex(ans) == Util.maxIndex(ys[i])) {
+                accurate++;
+            }
+//            if (Math.abs(ans[0] - ys[i][0]) < 0.1) {
+//                accurate++;
+//            }
+        }
+
+        System.out.printf("Accuracy: %d / %d\n", accurate, TEST_NUM);
+
     }
 }
