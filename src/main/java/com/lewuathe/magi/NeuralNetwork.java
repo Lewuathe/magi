@@ -31,22 +31,22 @@ public class NeuralNetwork {
         this.numLayers = numLayers;
         this.sizes = numLayers.length;
         // Network weights
-        this.biases[0] = Matrix.factory.rand(numLayers[1], 1);
-        this.biases[1] = Matrix.factory.rand(numLayers[2], 1);
-        this.weights[0] = Matrix.factory.rand(numLayers[1], numLayers[0]);
-        this.weights[1] = Matrix.factory.rand(numLayers[2], numLayers[1]);
+        this.biases[0] = Matrix.factory.randn(numLayers[1], 1);
+        this.biases[1] = Matrix.factory.randn(numLayers[2], 1);
+        this.weights[0] = Matrix.factory.randn(numLayers[1], numLayers[0]);
+        this.weights[1] = Matrix.factory.randn(numLayers[2], numLayers[1]);
 
         // Update factors for resilient propagation
-        this.updateValueB[0] = Matrix.factory.rand(numLayers[1], 1);
-        this.updateValueB[1] = Matrix.factory.rand(numLayers[2], 1);
-        this.updateValueW[0] = Matrix.factory.rand(numLayers[1], numLayers[0]);
-        this.updateValueW[1] = Matrix.factory.rand(numLayers[2], numLayers[1]);
+        this.updateValueB[0] = Matrix.factory.randn(numLayers[1], 1);
+        this.updateValueB[1] = Matrix.factory.randn(numLayers[2], 1);
+        this.updateValueW[0] = Matrix.factory.randn(numLayers[1], numLayers[0]);
+        this.updateValueW[1] = Matrix.factory.randn(numLayers[2], numLayers[1]);
 
         // Gradient descent calculated previously for resilient propagation
-        this.preNablaB[0] = Matrix.factory.rand(numLayers[1], 1);
-        this.preNablaB[1] = Matrix.factory.rand(numLayers[2], 1);
-        this.preNablaW[0] = Matrix.factory.rand(numLayers[1], numLayers[0]);
-        this.preNablaW[1] = Matrix.factory.rand(numLayers[2], numLayers[1]);
+        this.preNablaB[0] = Matrix.factory.randn(numLayers[1], 1);
+        this.preNablaB[1] = Matrix.factory.randn(numLayers[2], 1);
+        this.preNablaW[0] = Matrix.factory.randn(numLayers[1], numLayers[0]);
+        this.preNablaW[1] = Matrix.factory.randn(numLayers[2], numLayers[1]);
     }
 
     /**
@@ -88,7 +88,16 @@ public class NeuralNetwork {
         int n = x.length;
         for (int i = 0; i < epochs; i++) {
             System.out.printf("Epoch %d -> ", i);
-            this.update(x, y, lr);
+            int loop = x.length / 10;
+            for (int j = 0; j < loop; j++) {
+                double[][] batchX = new double[10][];
+                double[][] batchY = new double[10][];
+                for (int k = 0; k < 10; k++) {
+                    batchX[k] = x[j * 10 + k];
+                    batchY[k] = y[j * 10 + k];
+                }
+                this.update(batchX, batchY, lr);
+            }
             this.evaluate(testxs, testys);
         }
     }
@@ -110,9 +119,6 @@ public class NeuralNetwork {
 
         assert x.length == y.length;
         for (int i = 0; i < x.length; i++) {
-            if (Math.random() > 0.3) {
-                continue;
-            }
             Matrix xMat = Matrix.factory.zeros(numLayers[0], 1);
             Matrix yMat = Matrix.factory.zeros(numLayers[2], 1);
             for (int j = 0; j < numLayers[0]; j++) {
@@ -253,15 +259,15 @@ public class NeuralNetwork {
         for (int i = 0; i < TEST_NUM; i++) {
             double[] ans = this.feedforward(xs[i]);
 
-            System.out.println("====================");
-            for (int j = 0; j < ys[i].length; j++) {
-                System.out.printf("%f ", ys[i][j]);
-            }
-            System.out.println("\n---------------------");
-            for (int j = 0; j < ans.length; j++) {
-                System.out.printf("%f ", ans[j]);
-            }
-            System.out.println("\n====================");
+//            System.out.println("====================");
+//            for (int j = 0; j < ys[i].length; j++) {
+//                System.out.printf("%f ", ys[i][j]);
+//            }
+//            System.out.println("\n---------------------");
+//            for (int j = 0; j < ans.length; j++) {
+//                System.out.printf("%f ", ans[j]);
+//            }
+//            System.out.println("\n====================");
             if (Util.maxIndex(ans) == Util.maxIndex(ys[i])) {
                 accurate++;
             }
