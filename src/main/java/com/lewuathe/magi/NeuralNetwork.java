@@ -7,6 +7,9 @@ package com.lewuathe.magi;
 import org.ujmp.core.Matrix;
 
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 
 /**
@@ -67,6 +70,7 @@ public class NeuralNetwork {
         // Set input activation
         for (int i = 0; i < 2; i++) {
             activation = Activation.sigmoid(weights[i].mtimes(activation).plus(biases[i]));
+//            activation = Activation.hyperbolicTangent(weights[i].mtimes(activation).plus(biases[i]));
         }
 
         double[] ret = new double[this.numLayers[2]];
@@ -84,21 +88,30 @@ public class NeuralNetwork {
      * @param epochs
      * @param lr
      */
-    public void train(double[][] x, double[][] y, int epochs, double lr, double[][] testxs, double[][] testys) {
-        int n = x.length;
-        for (int i = 0; i < epochs; i++) {
-            System.out.printf("Epoch %d -> ", i);
-            int loop = x.length / 10;
+    public void train(double[][] x, double[][] y, int epochs, double lr, int minibatchSize, double[][] testxs, double[][] testys) {
+        train(x, y, epochs, lr, minibatchSize, testxs, testys, new BiConsumer<double[][], double[][]>() {
+            @Override
+            public void accept(double[][] doubles, double[][] doubles2) {
+                ;
+            }
+        });
+    }
+
+    public void train(double[][] x, double[][] y, int epoch, double lr, int minibatchSize,
+                      double[][] testxs, double[][] testys, BiConsumer<double[][], double[][]> evaluator) {
+        assert x.length == y.length;
+        for (int i = 0; i < epoch; i++) {
+            int loop = x.length / minibatchSize;
             for (int j = 0; j < loop; j++) {
-                double[][] batchX = new double[10][];
-                double[][] batchY = new double[10][];
-                for (int k = 0; k < 10; k++) {
-                    batchX[k] = x[j * 10 + k];
-                    batchY[k] = y[j * 10 + k];
+                double[][] batchX = new double[minibatchSize][];
+                double[][] batchY = new double[minibatchSize][];
+                for (int k = 0; k < minibatchSize; k++) {
+                    batchX[k] = x[j * minibatchSize + k];
+                    batchY[k] = y[j * minibatchSize + k];
                 }
                 this.update(batchX, batchY, lr);
             }
-            this.evaluate(testxs, testys);
+            this.evaluate(testxs, testys, evaluator);
         }
     }
 
@@ -252,31 +265,25 @@ public class NeuralNetwork {
         return outputActivation.minus(y);
     }
 
-    private void evaluate(double[][] xs, double[][] ys) {
+    private void evaluate(double[][] xs, double[][] ys, BiConsumer<double[][], double[][]> evaluator) {
         // Verification
+        assert xs.length == ys.length;
         int accurate = 0;
         int TEST_NUM = xs.length;
+        double[][] answers = new double[xs.length][];
         for (int i = 0; i < TEST_NUM; i++) {
-            double[] ans = this.feedforward(xs[i]);
+            answers[i] = this.feedforward(xs[i]);
 
-//            System.out.println("====================");
-//            for (int j = 0; j < ys[i].length; j++) {
-//                System.out.printf("%f ", ys[i][j]);
+//            if (Util.maxIndex(ans) == Util.maxIndex(ys[i])) {
+//                accurate++;
 //            }
-//            System.out.println("\n---------------------");
-//            for (int j = 0; j < ans.length; j++) {
-//                System.out.printf("%f ", ans[j]);
-//            }
-//            System.out.println("\n====================");
-            if (Util.maxIndex(ans) == Util.maxIndex(ys[i])) {
-                accurate++;
-            }
 //            if (Math.abs(ans[0] - ys[i][0]) < 0.1) {
 //                accurate++;
 //            }
         }
+        evaluator.accept(answers, ys);
 
-        System.out.printf("Accuracy: %d / %d\n", accurate, TEST_NUM);
+//        System.out.printf("Accuracy: %d / %d\n", accurate, TEST_NUM);
 
     }
 }
