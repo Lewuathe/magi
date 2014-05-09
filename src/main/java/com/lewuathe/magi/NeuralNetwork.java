@@ -19,16 +19,18 @@ import java.util.function.Consumer;
  * @since 0.0.1
  */
 public class NeuralNetwork {
-    private int[] numLayers;
-    private int sizes;
-    private static final double etaPlus = 1.2;
-    private static final double etaMinus = 0.5;
-    private Matrix[] biases = new Matrix[2];
-    private Matrix[] weights = new Matrix[2];
-    private Matrix[] updateValueB = new Matrix[2];
-    private Matrix[] updateValueW = new Matrix[2];
-    private Matrix[] preNablaB = new Matrix[2];
-    private Matrix[] preNablaW = new Matrix[2];
+    protected int[] numLayers;
+    protected int sizes;
+    protected static final double etaPlus = 1.2;
+    protected static final double etaMinus = 0.5;
+    protected static final double minimunUpdate = 0.01;
+    protected static final double maxUpdate = 0.1;
+    protected Matrix[] biases = new Matrix[2];
+    protected Matrix[] weights = new Matrix[2];
+    protected Matrix[] updateValueB = new Matrix[2];
+    protected Matrix[] updateValueW = new Matrix[2];
+    protected Matrix[] preNablaB = new Matrix[2];
+    protected Matrix[] preNablaW = new Matrix[2];
 
     public NeuralNetwork(int[] numLayers) {
         this.numLayers = numLayers;
@@ -171,12 +173,11 @@ public class NeuralNetwork {
                 for (int j = 0; j < ret.getColumnCount(); j++) {
                     double pre = updateValueB[l].getAsDouble(i, j);
                     if (ret.getAsDouble(i, j) > 0.0) {
-                        updateValueB[l].setAsDouble(etaPlus * pre, i, j);
+                        pre = Math.min(etaPlus * pre, maxUpdate);
                     } else if (ret.getAsDouble(i, j) < 0.0) {
-                        updateValueB[l].setAsDouble(etaMinus * pre, i, j);
-                    } else {
-                        updateValueB[l].setAsDouble(pre, i, j);
+                        pre = Math.max(etaMinus * pre, minimunUpdate);
                     }
+                    updateValueB[l].setAsDouble(pre, i, j);
                 }
             }
             preNablaB[l] = nablaB[l];
@@ -189,12 +190,11 @@ public class NeuralNetwork {
                 for (int j = 0; j < ret.getColumnCount(); j++) {
                     double pre = updateValueW[l].getAsDouble(i, j);
                     if (ret.getAsDouble(i, j) > 0.0) {
-                        updateValueW[l].setAsDouble(etaPlus * pre, i, j);
+                        pre = Math.min(etaPlus * pre, maxUpdate);
                     } else if (ret.getAsDouble(i, j) < 0.0) {
-                        updateValueW[l].setAsDouble(etaMinus * pre, i, j);
-                    } else {
-                        updateValueW[l].setAsDouble(pre, i, j);
+                        pre = Math.max(etaMinus * pre, minimunUpdate);
                     }
+                    updateValueW[l].setAsDouble(pre, i, j);
                 }
             }
             preNablaW[l] = nablaW[l];
@@ -218,7 +218,7 @@ public class NeuralNetwork {
     }
 
 
-    private Matrix[][] backprod(Matrix x, Matrix y) {
+    protected Matrix[][] backprod(Matrix x, Matrix y) {
         Matrix[] nablaB = new Matrix[2];
         nablaB[0] = Matrix.factory.zeros(numLayers[1], 1);
         nablaB[1] = Matrix.factory.zeros(numLayers[2], 1);
@@ -261,7 +261,7 @@ public class NeuralNetwork {
         return ret;
     }
 
-    private Matrix costDerivative(Matrix outputActivation, Matrix y) {
+    protected Matrix costDerivative(Matrix outputActivation, Matrix y) {
         return outputActivation.minus(y);
     }
 
@@ -273,17 +273,7 @@ public class NeuralNetwork {
         double[][] answers = new double[xs.length][];
         for (int i = 0; i < TEST_NUM; i++) {
             answers[i] = this.feedforward(xs[i]);
-
-//            if (Util.maxIndex(ans) == Util.maxIndex(ys[i])) {
-//                accurate++;
-//            }
-//            if (Math.abs(ans[0] - ys[i][0]) < 0.1) {
-//                accurate++;
-//            }
         }
         evaluator.accept(answers, ys);
-
-//        System.out.printf("Accuracy: %d / %d\n", accurate, TEST_NUM);
-
     }
 }
