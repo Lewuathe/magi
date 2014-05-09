@@ -32,7 +32,7 @@ public class DenoisedAutoencoder extends NeuralNetwork {
             Matrix xMat = Matrix.factory.zeros(numLayers[0], 1);
             Matrix yMat = Matrix.factory.zeros(numLayers[2], 1);
             for (int j = 0; j < numLayers[0]; j++) {
-                xMat.setAsDouble(x[i][j], j, 0);
+                xMat.setAsDouble(corrupt(x[i][j], 0.2), j, 0);
             }
             for (int j = 0; j < numLayers[2]; j++) {
                 yMat.setAsDouble(y[i][j], j, 0);
@@ -96,4 +96,10 @@ public class DenoisedAutoencoder extends NeuralNetwork {
         Matrix[][] ret = {nablaB, nablaW};
         return ret;
     }
+
+    private double corrupt(double input, double level) {
+        double noise = level * (2.0 * Math.random() - 1.0);
+        return input * (1.0 + level);
+    }
+
 }

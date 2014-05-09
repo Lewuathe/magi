@@ -32,23 +32,34 @@ public class DATest extends TestCase {
                 {0.0, 0.5, 0.5},
                 {0.1, 0.8, 0.1},
                 {0.2, 0.2, 0.6},
-                {0.8, 0.1, 0.1}
+                {0.8, 0.1, 0.1},
+                {0.4, 0.3, 0.4},
+                {0.5, 0.2, 0.3},
+                {0.1, 0.2, 0.7},
+                {0.9, 0.0, 0.1},
+                {0.6, 0.4, 0.0},
+                {0.0, 0.2, 0.8},
+                {0.4, 0.4, 0.2}
         };
 
-        dA.train(xs, xs, 150, 0.1, 4, xs, xs, new BiConsumer<double[][], double[][]>() {
+        dA.train(xs, xs, 3000, 0.1, 5, xs, xs, new BiConsumer<double[][], double[][]>() {
             @Override
             public void accept(double[][] doubles, double[][] doubles2) {
                 assert doubles.length == doubles2.length;
+                int accuracy = 0;
                 for (int i = 0; i < doubles.length; i++) {
+                    boolean isOk = true;
                     for (int j = 0; j < doubles[i].length; j++) {
-                        System.out.printf("%f ", doubles[i][j]);
+                        if (Math.abs(doubles[i][j] - doubles2[i][j]) > 0.1) {
+                            isOk = false;
+                            break;
+                        }
                     }
-                    System.out.printf(" <--> ");
-                    for (int j = 0; j < doubles2[i].length; j++) {
-                        System.out.printf("%f ", doubles2[i][j]);
+                    if (isOk) {
+                        accuracy++;
                     }
-                    System.out.println("");
                 }
+                System.out.printf("Accuracy: %d / %d\n", accuracy, doubles.length);
             }
         });
     }

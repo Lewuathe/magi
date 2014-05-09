@@ -102,4 +102,10 @@ public class Util {
         }
         return maxIndex;
     }
+
+    public static double boxMuller() {
+        double x = Math.random();
+        double y = Math.random();
+        return Math.sqrt(-2.0 * Math.log(x)) * Math.sin(2.0 * Math.PI * y);
+    }
 }
