@@ -42,7 +42,7 @@ public class DATest extends TestCase {
                 {0.4, 0.4, 0.2}
         };
 
-        dA.train(xs, xs, 3000, 0.1, 5, xs, xs, new BiConsumer<double[][], double[][]>() {
+        dA.train(xs, xs, 300, 0.3, 5, xs, xs, new BiConsumer<double[][], double[][]>() {
             @Override
             public void accept(double[][] doubles, double[][] doubles2) {
                 assert doubles.length == doubles2.length;

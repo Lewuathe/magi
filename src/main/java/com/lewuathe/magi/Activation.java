@@ -26,7 +26,7 @@ public class Activation {
 
     public static Matrix sigmoidPrime(Matrix input) {
         Matrix ret = Matrix.factory.zeros(input.getRowCount(), input.getColumnCount());
-        for (int i = 0; i < input.getRowCount() ; i++) {
+        for (int i = 0; i < input.getRowCount(); i++) {
             for (int j = 0; j < input.getColumnCount(); j++) {
                 ret.setAsDouble(sigmoidPrime(input.getAsDouble(i, j)), i, j);
             }
@@ -60,5 +60,42 @@ public class Activation {
             }
         }
         return ret;
+    }
+
+    public static double[] softmax(double[] x) {
+        double max = 0.0;
+        double sum = 0.0;
+        double[] ret = new double[x.length];
+
+        for (int i = 0; i < x.length; i++) {
+            if (max < x[i]) {
+                max = x[i];
+            }
+        }
+
+        for (int i = 0; i < x.length; i++) {
+            x[i] = Math.exp(x[i] - max);
+            sum += x[i];
+        }
+
+        for (int i = 0; i < x.length; i++) {
+            ret[i] = x[i] / sum;
+        }
+
+        return ret;
+    }
+
+    public static Matrix softmax(Matrix input) {
+        assert input.getColumnCount() == 1;
+        double[] x = new double[(int) input.getRowCount()];
+        for (int i = 0; i < x.length; i++) {
+            x[i] = input.getAsDouble(i, 0);
+        }
+        double[] ret = softmax(x);
+        Matrix retMat = Matrix.factory.zeros(input.getRowCount(), 1);
+        for (int i = 0; i < retMat.getRowCount(); i++) {
+            retMat.setAsDouble(ret[i], i, 0);
+        }
+        return retMat;
     }
 }

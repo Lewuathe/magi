@@ -11,6 +11,20 @@ public class DenoisedAutoencoder extends NeuralNetwork {
         super(numLayers);
     }
 
+    public DenoisedAutoencoder(int[] numLayers, Matrix w, Matrix b) {
+        super(numLayers);
+        this.weights[0] = w;
+        this.biases[0] = b;
+    }
+
+    public void setW(Matrix w) {
+        this.weights[0] = w;
+    }
+
+    public void setB(Matrix b) {
+        this.biases[0] = b;
+    }
+
     /**
      * update
      *
