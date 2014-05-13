@@ -26,7 +26,7 @@ public class NeuralNetwork {
     protected static final double minimunUpdate = 0.01;
     protected static final double maxUpdate = 0.1;
     protected Matrix[] biases = new Matrix[2];
-    protected Matrix[] weights = new Matrix[2];
+    public Matrix[] weights = new Matrix[2];
     protected Matrix[] updateValueB = new Matrix[2];
     protected Matrix[] updateValueW = new Matrix[2];
     protected Matrix[] preNablaB = new Matrix[2];
@@ -82,6 +82,14 @@ public class NeuralNetwork {
         return ret;
     }
 
+    public void train(double[] x, double[] y, double lr) {
+        double[][] xs = new double[1][];
+        double[][] ys = new double[1][];
+        xs[0] = x;
+        ys[0] = y;
+        train(xs, ys, 1, lr, 1);
+    }
+
     /**
      * train
      *
@@ -90,6 +98,10 @@ public class NeuralNetwork {
      * @param epochs
      * @param lr
      */
+    public void train(double[][] x, double[][] y, int epochs, double lr, int minibatchSize) {
+        train(x, y, epochs, lr, minibatchSize, null, null, null);
+    }
+
     public void train(double[][] x, double[][] y, int epochs, double lr, int minibatchSize, double[][] testxs, double[][] testys) {
         train(x, y, epochs, lr, minibatchSize, testxs, testys, new BiConsumer<double[][], double[][]>() {
             @Override
@@ -113,7 +125,9 @@ public class NeuralNetwork {
                 }
                 this.update(batchX, batchY, lr);
             }
-            this.evaluate(testxs, testys, evaluator);
+            if (evaluator != null) {
+                this.evaluate(testxs, testys, evaluator);
+            }
         }
     }
 

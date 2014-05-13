@@ -18,6 +18,14 @@ public class HiddenLayer {
         this.bias = Matrix.factory.randn(nOuts, 1);
     }
 
+    public void setWeight(Matrix weight) {
+        this.weight = weight;
+    }
+
+    public void setBias(Matrix bias) {
+        this.bias = bias;
+    }
+
     public double[] output(double[] input) {
         Matrix x = Matrix.factory.zeros(this.nIns, 1);
         for (int i = 0; i < x.getRowCount(); i++) {
@@ -31,5 +39,13 @@ public class HiddenLayer {
             ret[i] = hidden.getAsDouble(i, 0);
         }
         return ret;
+    }
+
+    public void sampleHGivenV(double[] input, double[] sample) {
+        double[] ret = output(input);
+        assert ret.length == sample.length;
+        for (int i = 0; i < ret.length; i++) {
+            sample[i] = ret[i];
+        }
     }
 }

@@ -6,6 +6,7 @@ import org.ujmp.core.Matrix;
  * Created by sasakiumi on 5/8/14.
  */
 public class DenoisedAutoencoder extends NeuralNetwork {
+    public double corruptionLevel;
 
     public DenoisedAutoencoder(int[] numLayers) {
         super(numLayers);
@@ -17,12 +18,8 @@ public class DenoisedAutoencoder extends NeuralNetwork {
         this.biases[0] = b;
     }
 
-    public void setW(Matrix w) {
-        this.weights[0] = w;
-    }
-
-    public void setB(Matrix b) {
-        this.biases[0] = b;
+    public void setCorruptionLevel(double corruptionLevel) {
+        this.corruptionLevel = corruptionLevel;
     }
 
     /**
@@ -46,7 +43,7 @@ public class DenoisedAutoencoder extends NeuralNetwork {
             Matrix xMat = Matrix.factory.zeros(numLayers[0], 1);
             Matrix yMat = Matrix.factory.zeros(numLayers[2], 1);
             for (int j = 0; j < numLayers[0]; j++) {
-                xMat.setAsDouble(corrupt(x[i][j], 0.2), j, 0);
+                xMat.setAsDouble(corrupt(x[i][j], corruptionLevel), j, 0);
             }
             for (int j = 0; j < numLayers[2]; j++) {
                 yMat.setAsDouble(y[i][j], j, 0);
@@ -113,7 +110,7 @@ public class DenoisedAutoencoder extends NeuralNetwork {
 
     private double corrupt(double input, double level) {
         double noise = level * (2.0 * Math.random() - 1.0);
-        return input * (1.0 + level);
+        return input * (1.0 + noise);
     }
 
 }

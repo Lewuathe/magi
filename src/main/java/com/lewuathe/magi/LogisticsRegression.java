@@ -10,8 +10,8 @@ import java.util.function.BiConsumer;
 public class LogisticsRegression {
     private int nIns;
     private int nOuts;
-    private Matrix weight;
-    private Matrix bias;
+    public Matrix weight;
+    public Matrix bias;
 
     public LogisticsRegression(int nIns, int nOuts) {
         this.nIns = nIns;
@@ -53,6 +53,14 @@ public class LogisticsRegression {
     public void train(double[][] xs, double[][] ys, double lr, int epochs) {
         assert xs.length == ys.length;
         train(xs, ys, lr, epochs, null, null, null);
+    }
+
+    public void train(double[] x, double[] y, double lr, int epochs) {
+        double[][] xs = new double[1][];
+        double[][] ys = new double[1][];
+        xs[0] = x;
+        ys[0] = y;
+        train(xs, ys, lr, epochs);
     }
 
     public Matrix[] update(Matrix x, Matrix y, double lr, int n) {
