@@ -69,7 +69,7 @@ public class StackedDenoisedAutoencoder {
         double[] prevLayerInput = new double[0];
         for (int epoch = 0; epoch < epochs; epoch++) {
             for (int n = 0; n < xs.length; n++) {
-                for (int l = 0; l < hiddenLayerSize.length; l++) {
+                for (int l = 0; l <= hiddenLayerSize.length; l++) {
                     if (l == 0) {
                         layerInput = xs[n];
                     } else {
@@ -86,10 +86,10 @@ public class StackedDenoisedAutoencoder {
     }
 
     public double[] predict(double[] x) {
-        double[] layerInput = new double[0];
+        double[] layerInput = x;
         double[] prevLayerInput;
 
-        for (int l = 0; l < hiddenLayerSize.length; l++) {
+        for (int l = 0; l <= hiddenLayerSize.length; l++) {
             if (l == 0) {
                 layerInput = x;
             } else {

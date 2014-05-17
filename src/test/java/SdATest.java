@@ -14,7 +14,7 @@ public class SdATest extends TestCase {
 
     @Test
     public void testSmoke() {
-        int[] hiddenLayerSize = {3, 3};
+        int[] hiddenLayerSize = {4, 3};
         sda = new StackedDenoisedAutoencoder(5, hiddenLayerSize, 2);
         double[][] xs = {
                 {1.0, 0.0, 0.0, 0.0, 0.0},

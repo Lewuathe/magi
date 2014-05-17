@@ -87,6 +87,7 @@ public class LogisticsRegression {
     }
 
     public double[] predict(double[] input) {
+        assert input.length == nIns;
         Matrix x = Matrix.factory.zeros(input.length, 1);
 
         for (int i = 0; i < input.length; i++) {
