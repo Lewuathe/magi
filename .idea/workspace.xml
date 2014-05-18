@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="a0a98d7f-6afc-4312-b1fc-6e1161626d6c" name="Default" comment="for">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/DATest.java" afterPath="$PROJECT_DIR$/src/test/java/DATest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="magi.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -66,21 +65,21 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="DenoisedAutoencoder.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="DenoisedAutoencoder.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/lewuathe/magi/DenoisedAutoencoder.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.9006928" vertical-offset="495" max-vertical-offset="1770">
+            <state vertical-scroll-proportion="0.0" vertical-offset="495" max-vertical-offset="1770">
               <caret line="63" column="8" selection-start-line="63" selection-start-column="8" selection-end-line="63" selection-end-column="8" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DATest.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="DATest.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/DATest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="479" max-vertical-offset="960">
-              <caret line="45" column="27" selection-start-line="45" selection-start-column="27" selection-end-line="45" selection-end-column="27" />
+            <state vertical-scroll-proportion="0.2448037" vertical-offset="479" max-vertical-offset="960">
+              <caret line="45" column="26" selection-start-line="45" selection-start-column="26" selection-end-line="45" selection-end-column="26" />
               <folding />
             </state>
           </provider>
@@ -123,8 +122,8 @@
         <option value="$PROJECT_DIR$/src/main/java/com/lewuathe/magi/StackedDenoisedAutoencoder.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/lewuathe/magi/LogisticsRegression.java" />
         <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/src/test/java/DATest.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/lewuathe/magi/DenoisedAutoencoder.java" />
+        <option value="$PROJECT_DIR$/src/test/java/DATest.java" />
       </list>
     </option>
   </component>
@@ -933,18 +932,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/DATest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/lewuathe/magi/DenoisedAutoencoder.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="479" max-vertical-offset="960">
-          <caret line="45" column="27" selection-start-line="45" selection-start-column="27" selection-end-line="45" selection-end-column="27" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="495" max-vertical-offset="1770">
+          <caret line="63" column="8" selection-start-line="63" selection-start-column="8" selection-end-line="63" selection-end-column="8" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/lewuathe/magi/DenoisedAutoencoder.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/DATest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.9006928" vertical-offset="495" max-vertical-offset="1770">
-          <caret line="63" column="8" selection-start-line="63" selection-start-column="8" selection-end-line="63" selection-end-column="8" />
+        <state vertical-scroll-proportion="0.2448037" vertical-offset="479" max-vertical-offset="960">
+          <caret line="45" column="26" selection-start-line="45" selection-start-column="26" selection-end-line="45" selection-end-column="26" />
           <folding />
         </state>
       </provider>
