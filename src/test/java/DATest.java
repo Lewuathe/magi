@@ -19,6 +19,7 @@ public class DATest extends TestCase {
     public void testSmoke() {
         int[] numLayers = {3, 2, 3};
         dA = new DenoisedAutoencoder(numLayers);
+        dA.setCorruptionLevel(0.2);
         double[][] xs = {
                 {0.0, 0.0, 0.0},
                 {0.0, 1.0, 0.0},
@@ -42,7 +43,7 @@ public class DATest extends TestCase {
                 {0.4, 0.4, 0.2}
         };
 
-        dA.train(xs, xs, 100, 0.1, 1, xs, xs, new BiConsumer<double[][], double[][]>() {
+        dA.train(xs, xs, 1000, 0.1, 1, xs, xs, new BiConsumer<double[][], double[][]>() {
             @Override
             public void accept(double[][] doubles, double[][] doubles2) {
                 assert doubles.length == doubles2.length;
