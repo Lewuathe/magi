@@ -16,6 +16,7 @@ public class DenoisedAutoencoder extends NeuralNetwork {
         super(numLayers);
         this.weights[0] = w;
         this.biases[0] = b;
+        this.corruptionLevel = 0.2;
     }
 
     public void setCorruptionLevel(double corruptionLevel) {
@@ -61,7 +62,7 @@ public class DenoisedAutoencoder extends NeuralNetwork {
         biases[0] = biases[0].minus(nablaB[0].mtimes(lr));
         biases[1] = biases[1].minus(nablaB[1].mtimes(lr));
         weights[0] = weights[0].minus(nablaW[0].mtimes(lr));
-        weights[0] = weights[0].minus(nablaW[1].transpose().mtimes(lr));
+//        weights[0] = weights[0].minus(nablaW[1].transpose().mtimes(lr));
     }
 
     @Override
@@ -73,7 +74,7 @@ public class DenoisedAutoencoder extends NeuralNetwork {
         nablaW[0] = Matrix.factory.zeros(numLayers[1], numLayers[0]);
         nablaW[1] = Matrix.factory.zeros(numLayers[2], numLayers[1]);
 
-        // In case of denoised autoencoder, no use of weight 0
+        // In case of denoised autoencoder, no use of 1st weight layer
         weights[1] = weights[0].transpose();
 
         // Activation of each layer
@@ -93,15 +94,19 @@ public class DenoisedAutoencoder extends NeuralNetwork {
         // Calculate output layer error
         Matrix delta = costDerivative(activations[2], y);
         delta = Util.eachMul(delta, Activation.sigmoidPrime(zs[1]));
+        Matrix L_vbias = delta.clone();
         nablaB[1] = delta;
-        nablaW[1] = delta.mtimes(activations[1].transpose());
+//        nablaW[1] = delta.mtimes(activations[1].transpose());
 
+        Matrix L_hbias;
         for (int i = 1; i > 0; i--) {
             // Back propagation of output layer error to hidden layers
             delta = weights[i].transpose().mtimes(delta);
             delta = Util.eachMul(delta, Activation.sigmoidPrime(zs[i - 1]));
+            L_hbias = delta.clone();
             nablaB[i - 1] = delta;
-            nablaW[i - 1] = delta.mtimes(activations[i - 1].transpose());
+//            nablaW[i - 1] = delta.mtimes(activations[i - 1].transpose());
+            nablaW[i - 1] = L_hbias.mtimes(x.transpose()).plus(activations[1].mtimes(L_vbias.transpose()));
         }
 
         Matrix[][] ret = {nablaB, nablaW};
