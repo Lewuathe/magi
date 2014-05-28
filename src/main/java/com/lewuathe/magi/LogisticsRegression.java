@@ -21,6 +21,14 @@ public class LogisticsRegression {
         this.bias = Matrix.factory.randn(nOuts, 1);
     }
 
+    public void setWeight(Matrix w) {
+        this.weight = w;
+    }
+
+    public void setBias(Matrix b) {
+        this.bias = b;
+    }
+
     public void train(double[][] xs, double[][] ys, double lr, int epochs,
                       double[][] testxs, double[][] testys, BiConsumer<double[][], double[][]> evaluator) {
         for (int trainLoop = 0; trainLoop < epochs; trainLoop++) {

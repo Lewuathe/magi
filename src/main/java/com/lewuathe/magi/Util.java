@@ -108,4 +108,30 @@ public class Util {
         double y = Math.random();
         return Math.sqrt(-2.0 * Math.log(x)) * Math.sin(2.0 * Math.PI * y);
     }
+
+    public static int bernouli(double p) {
+        assert 0.0 <= p && p <= 1.0;
+        if (Math.random() < p) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    public static int binomial(int n, double p) {
+        assert 0.0 <= p && p<= 1.0;
+        int x = 0;
+        for (int i = 0; i < n; i++) {
+            x += bernouli(p);
+        }
+        return x;
+    }
+
+    public static Matrix makeMask(int n, double p) {
+        Matrix ret = Matrix.factory.zeros(n, 1);
+        for (int i = 0; i < ret.getRowCount(); i++) {
+            ret.setAsDouble(bernouli(p), i, 0);
+        }
+        return ret;
+    }
 }

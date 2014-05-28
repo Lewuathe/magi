@@ -23,6 +23,14 @@ public class DenoisedAutoencoder extends NeuralNetwork {
         this.corruptionLevel = corruptionLevel;
     }
 
+    public void setWeight(Matrix w) {
+        this.weights[0] = w;
+    }
+
+    public void setBias(Matrix b) {
+        this.biases[0] = b;
+    }
+
     /**
      * update
      *
@@ -62,7 +70,7 @@ public class DenoisedAutoencoder extends NeuralNetwork {
         biases[0] = biases[0].minus(nablaB[0].mtimes(lr));
         biases[1] = biases[1].minus(nablaB[1].mtimes(lr));
         weights[0] = weights[0].minus(nablaW[0].mtimes(lr));
-//        weights[0] = weights[0].minus(nablaW[1].transpose().mtimes(lr));
+        weights[0] = weights[0].minus(nablaW[1].transpose().mtimes(lr));
     }
 
     @Override
@@ -85,28 +93,29 @@ public class DenoisedAutoencoder extends NeuralNetwork {
         activations[0] = x;
         // Row values before activating
         Matrix zs[] = new Matrix[2];
+//        Matrix mask = Util.makeMask(numLayers[1], 0.5);
         for (int i = 0; i < 2; i++) {
             zs[i] = weights[i].mtimes(activation).plus(biases[i]);
             activation = Activation.sigmoid(zs[i]);
+//            if (i == 0) {
+//                activation = Util.eachMul(activation, mask);
+//            }
             activations[i + 1] = activation;
         }
 
         // Calculate output layer error
         Matrix delta = costDerivative(activations[2], y);
         delta = Util.eachMul(delta, Activation.sigmoidPrime(zs[1]));
-        Matrix L_vbias = delta.clone();
         nablaB[1] = delta;
-//        nablaW[1] = delta.mtimes(activations[1].transpose());
+        nablaW[1] = delta.mtimes(activations[1].transpose());
 
-        Matrix L_hbias;
         for (int i = 1; i > 0; i--) {
             // Back propagation of output layer error to hidden layers
             delta = weights[i].transpose().mtimes(delta);
             delta = Util.eachMul(delta, Activation.sigmoidPrime(zs[i - 1]));
-            L_hbias = delta.clone();
+//            delta = Util.eachMul(delta, mask);
             nablaB[i - 1] = delta;
-//            nablaW[i - 1] = delta.mtimes(activations[i - 1].transpose());
-            nablaW[i - 1] = L_hbias.mtimes(x.transpose()).plus(activations[1].mtimes(L_vbias.transpose()));
+            nablaW[i - 1] = delta.mtimes(activations[i - 1].transpose());
         }
 
         Matrix[][] ret = {nablaB, nablaW};
@@ -116,6 +125,14 @@ public class DenoisedAutoencoder extends NeuralNetwork {
     private double corrupt(double input, double level) {
         double noise = level * (2.0 * Math.random() - 1.0);
         return input * (1.0 + noise);
+    }
+
+    private double corrupt(double input, int n, double p) {
+        if (input == 0.0) {
+            return 0.0;
+        } else {
+            return Util.binomial(n, p);
+        }
     }
 
 }
